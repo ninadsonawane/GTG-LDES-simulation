@@ -1,0 +1,40 @@
+{
+  "status": "Independent simulation based on P4; not exact reproduction",
+  "paper": "10.3390/inventions11040081",
+  "parameters": {
+    "gtgMW": 8.2,
+    "training": 60,
+    "fineTuning": 30,
+    "inference": 10,
+    "averageMW": 8,
+    "fluctuation": 1,
+    "capacityMWh": 132,
+    "powerMW": 12,
+    "etaCharge": 0.95,
+    "etaDischarge": 0.95,
+    "initialSoc": 0.8,
+    "hours": 24,
+    "dtSeconds": 5,
+    "seed": 20261011
+  },
+  "selected": {
+    "transitions": 1066,
+    "chargingTimePct": 84.62962962962963,
+    "averageSocPct": 81.73784370112611,
+    "socDeviationPP": 1.7378437011261072,
+    "chargedMWh": 5.123651714371469,
+    "dischargedMWh": 0.3236517143718209,
+    "movementMWh": 5.44730342874329,
+    "minSocPct": 79.99513895859943,
+    "maxSocPct": 83.42938114660994,
+    "finalSocPct": 83.42938114660994,
+    "peakPowerMW": 1.0263970218010767,
+    "powerViolationSteps": 0,
+    "socViolationSamples": 0,
+    "physicalViolationSamples": 0,
+    "balanceErrorMW": 0,
+    "feasible": true
+  },
+  "feasibleSweepCandidates": 33,
+  "totalSweepCandidates": 101
+}

@@ -1,0 +1,10 @@
+const fs=require('node:fs'),path=require('node:path'),M=require('../engine.js');
+const parameters={...M.defaults};
+if(process.argv[2])Object.assign(parameters,JSON.parse(fs.readFileSync(process.argv[2],'utf8')));
+const p=M.checked(parameters),d=M.generateDemand(p),out=path.resolve(__dirname,'../results');
+fs.mkdirSync(out,{recursive:true});
+const rows=M.sweep(d.load,p),selected=M.evaluate(d.load,p,false).metrics;
+const report={status:'Independent simulation based on P4; not exact reproduction',paper:'10.3390/inventions11040081',parameters:p,selected,feasibleSweepCandidates:rows.filter(r=>r.feasible).length,totalSweepCandidates:101};
+fs.writeFileSync(path.join(out,'experiment.json'),JSON.stringify(report,null,2)+'\n');
+const keys=Object.keys(rows[0]);fs.writeFileSync(path.join(out,'sweep.csv'),[keys.join(','),...rows.map(r=>keys.map(k=>r[k]).join(','))].join('\n')+'\n');
+console.log(JSON.stringify(report,null,2));

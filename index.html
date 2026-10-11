@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GTG–LDES operating-point experiment</title><link rel="stylesheet" href="style.css"></head>
+<body><main>
+<header><p class="eyebrow">Independent simulation based on P4 · §2.4</p>
+<h1>GTG output and storage utilization</h1>
+<p>Hold AI demand fixed. Change generation. Observe storage power, energy movement and state of charge.</p>
+<a href="https://doi.org/10.3390/inventions11040081" target="_blank" rel="noopener">Mun et al., Inventions 2026, 11, 81</a></header>
+<div class="workspace"><aside aria-label="Simulation inputs">
+<form id="controls">
+<fieldset><legend>Generator</legend>
+<label for="gtgMW">Constant GTG output (MW)</label>
+<div class="paired"><input id="gtgRange" aria-label="GTG output slider" type="range" min="1" max="12" step=".01" value="8.2"><input id="gtgMW" type="number" min="1" max="12" step=".01" value="8.2"></div>
+<p class="hint">Changing GTG output reuses the same demand trace.</p></fieldset>
+<fieldset><legend>Synthetic AI demand</legend>
+<div class="fields"><label>Training (%)<input id="training" type="number" min="0" max="100" step="1" value="60"></label>
+<label>Fine-tuning (%)<input id="fineTuning" type="number" min="0" max="100" step="1" value="30"></label>
+<label>Inference (%)<input id="inference" type="number" min="0" max="100" step="1" value="10"></label>
+<label>Facility mean (MW)<input id="averageMW" type="number" min=".01" max="12" step=".1" value="8"></label>
+<label>Fluctuation intensity<input id="fluctuation" type="number" min="0" max="3" step=".1" value="1"></label>
+<label>Random seed<input id="seed" type="number" min="0" max="4294967295" step="1" value="20261011"></label></div>
+<p class="hint">Shares must sum to 100%. The mean includes cooling and auxiliaries; intensity scales within-phase fluctuations.</p></fieldset>
+<fieldset><legend>Storage</legend><div class="fields">
+<label>Energy (MWh)<input id="capacityMWh" type="number" min=".01" step="1" value="132"></label>
+<label>Power rating (MW)<input id="powerMW" type="number" min=".01" step=".1" value="12"></label>
+<label>Charge efficiency (%)<input id="etaCharge" type="number" min=".01" max="100" step="1" value="95"></label>
+<label>Discharge efficiency (%)<input id="etaDischarge" type="number" min=".01" max="100" step="1" value="95"></label>
+<label>Initial SoC (%)<input id="initialSoc" type="number" min="0" max="100" step="1" value="80"></label></div></fieldset>
+<fieldset><legend>Simulation horizon</legend><div class="fields">
+<label>Duration (hours)<input id="hours" type="number" min=".05" max="168" step="1" value="24"></label>
+<label>Timestep (seconds)<input id="dtSeconds" type="number" min="1" max="60" step="1" value="5"></label></div>
+<p class="hint">Duration or timestep changes regenerate the trace. Transition counts depend on temporal resolution.</p></fieldset>
+</form></aside>
+<section class="results" aria-label="Simulation results">
+<p id="inputError" role="alert" hidden></p><p id="status" aria-live="polite"></p>
+<section><h2>Power balance</h2><div class="legend"><span class="demand">Demand</span><span class="gtg">GTG</span><span class="storage">Required LDES power</span></div>
+<canvas id="powerChart" aria-label="Demand, GTG and required storage power versus time" role="img"></canvas>
+<p class="hint">Positive storage power = discharge; negative = charge. Required power is shown even when equipment limits are exceeded.</p></section>
+<section><h2>State of charge</h2><canvas id="socChart" aria-label="Storage state of charge, 80 percent target and 20 to 90 percent normal operating limits" role="img"></canvas>
+<p id="socSummary" class="hint"></p></section>
+<section><h2>P4 performance metrics</h2><table><thead><tr><th>Metric</th><th>Selected operating point</th></tr></thead><tbody>
+<tr><td>Charge/discharge transitions</td><td id="transitions"></td></tr>
+<tr><td>Charging-time ratio</td><td id="chargingTime"></td></tr>
+<tr><td>|Average SoC − 80%|</td><td id="socDeviation"></td></tr>
+<tr><td>Total AC-side energy movement</td><td id="movement"></td></tr>
+</tbody></table><p id="energyDetails" class="hint"></p>
+<div class="actions"><button id="exportTrace" type="button">Export trace CSV</button><button id="exportSettings" type="button">Export settings JSON</button></div></section>
+<section class="sweep-section"><h2>101-point GTG sweep</h2><p>1–12 MW on the identical demand trace and storage settings. The vertical line marks your selection; red crosses identify infeasible candidates.</p>
+<div class="actions"><button id="runSweep" type="button">Run sweep</button><button id="exportSweep" type="button" disabled>Export sweep CSV</button><span id="sweepStatus" aria-live="polite"></span></div>
+<div id="sweepCharts" hidden><div class="sweep-grid">
+<section><h3>Transitions</h3><canvas id="sweepTransitions" role="img" aria-label="Charge discharge transitions versus GTG output"></canvas></section>
+<section><h3>Charging time (%)</h3><canvas id="sweepCharging" role="img" aria-label="Charging time ratio versus GTG output"></canvas></section>
+<section><h3>Average SoC deviation (pp)</h3><canvas id="sweepSoc" role="img" aria-label="Absolute average SoC deviation versus GTG output"></canvas></section>
+<section><h3>Energy movement (MWh)</h3><canvas id="sweepMovement" role="img" aria-label="Energy movement versus GTG output"></canvas></section></div></div></section>
+</section></div>
+<section class="assumptions"><h2>Model and assumptions</h2>
+<p><strong>Research question:</strong> How does a constant GTG setpoint change storage utilization, and which setpoints remain within power and SoC limits?</p>
+<p><strong>Energy balance:</strong> P<sub>GTG</sub> + P<sub>dis</sub> = P<sub>load</sub> + P<sub>ch</sub>.<br>
+SoC<sub>k+1</sub> = SoC<sub>k</sub> + (η<sub>ch</sub>P<sub>ch</sub> − P<sub>dis</sub>/η<sub>dis</sub>) Δt / E, with Δt in hours.</p>
+<ul><li>P4 basis: power balancing and SoC equation (§2.3.3, Eq. 16), four metrics and setpoint sweep (§2.4). This is not the authors’ code, trace or weighted optimizer.</li>
+<li>Independent demand model: 48 asynchronous nodes switch among training, fine-tuning and inference. Assumed dwell times: 600 / 180 / 30 seconds; relative activity: 1 / 0.75 / 0.35; bounded correlated fluctuations with 30-second correlation. Phase-selection weights use time share divided by dwell time (P4 Eq. 15).</li>
+<li>Raw auxiliary demand is 0.4 MW + 25% of IT demand. The entire trace is rescaled to the requested facility mean. At fixed mean, phase shares change variability rather than average energy. These are illustrative assumptions, not measured AI telemetry.</li>
+<li>GTG output is constant; no ramp, fuel, voltage/frequency, outage or degradation model. The displayed SoC is an unclipped diagnostic trajectory. After an equipment or physical energy limit is crossed, the assumed balance is not implementable.</li>
+<li>Normal SoC limits are 20–90%, with an 80% reference. Meeting these limits alone does not demonstrate 12-hour outage autonomy. Efficiencies of 95% each way are assumptions.</li>
+<li>Transitions count changes between charging and discharging, ignoring idle samples; they are not rainflow cycles or measured battery wear. Average SoC is the mean of interval-start states. Energy movement is charge + discharge measured on the AC side.</li>
+<li>Metrics use every timestep. Plot lines preserve binned extrema when the trace is dense; hover shows a sampled point. The sweep has no automatically declared optimum: a decision needs a defined objective and feasibility constraints.</li></ul>
+<p><a href="README.md">Experiment protocol and reproducibility</a> · <a href="https://github.com/ninadsonawane/GTG-LDES-simulation">Source repository</a></p>
+</section><footer>Independent GTG–LDES operating-point experiment · Ninad Sonawane</footer>
+</main><script src="engine.js"></script><script src="app.js"></script></body></html>

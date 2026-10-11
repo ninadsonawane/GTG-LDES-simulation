@@ -1,0 +1,8 @@
+{
+  "name": "gtg-ldes-simulation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Independent operating-point experiment based on Mun et al., Inventions 2026, 11, 81",
+  "scripts": {"test": "node --test tests/engine.test.cjs", "experiment": "node scripts/run-experiment.cjs", "serve": "node scripts/serve.cjs"},
+  "engines": {"node": ">=18"}
+}
