@@ -125,8 +125,3 @@ The committed result files use the default 24-hour synthetic trace, 8 MW mean de
 
 Ten numerical tests and browser checks passed before publication. The browser checks confirmed fixed-trace comparisons, invalid-input handling, all 101 sweep candidates, trace/sweep/settings exports, offline operation and 375-pixel layout. Browser and Node default metrics agree to floating-point precision.
 
-## Slide wording
-
-> I implemented an independent synthetic AI workload simulation to evaluate how GTG operating points affect LDES utilization and SoC, using P4's four performance metrics.
-
-Code and assumptions: https://github.com/ninadsonawane/GTG-LDES-simulation
